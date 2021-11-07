@@ -6,3 +6,6 @@
 *.exe
 
 .clang-format
+
+test_programs
+
