@@ -57,10 +57,7 @@ class Particle {
   // numero massimo di tipi di particelle generabili
   static const int fMaxNumParticleType = 10;
 
-  // vector con i tipi di particelle istanziati
-  // static ParticleType *fParticleType[fMaxNumParticleType];
-
-  static std::vector<ParticleType *> fParticleType;
+  static ParticleType *fParticleType[fMaxNumParticleType];
 
   // contatore di tipi di particella istanziati
   // fNParticleType <= fMaxNumParticleType

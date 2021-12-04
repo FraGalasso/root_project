@@ -1,15 +1,9 @@
 #include "Particle.hpp"
 
 #include <cmath>
-#include <cstdlib>
-#include <cstring>
+#include <cstdlib>  // for RAND MAX
 
-#include "ParticleType.hpp"
-#include "ResonanceType.hpp"
-
-std::vector<ParticleType *> Particle::fParticleType;
-
-// ParticleType *Particle::fParticleType[fMaxNumParticleType];
+ParticleType *Particle::fParticleType[fMaxNumParticleType];
 
 int Particle::fNParticleType{0};
 
@@ -18,20 +12,25 @@ Particle::Particle(const char *name, double p_x, double p_y, double p_z) {
   p_x_ = p_x;
   p_y_ = p_y;
   p_z_ = p_z;
-  const int index = FindParticle(name);
-  if (index == -1) {
+  fIndex = FindParticle(name);
+  if (fIndex == -1) {
     std::cout << "There is no particle with name " << name << ".\n";
   };
-  fIndex = index;
 };
 
 int Particle::FindParticle(const char *name) {
-  for (int i = 0; i < fNParticleType; ++i) {
-    if (std::strcmp(fParticleType[i]->GetName(), name) == 0) {
-      return i;  // controllo se ci sono particelle con questo nome
-    };
-  };
-  return -1;  // se alla fine del ciclo non ne ho trovate ritorno un errore
+  int num = 0;
+  while (num < fNParticleType) {
+    if (fParticleType[num]->GetName() == name) {
+      break;
+    }
+    ++num;
+  }
+  if (num >= fNParticleType) {
+    return -1;
+  } else {
+    return num;
+  }
 };
 
 int Particle::GetIndex() { return fIndex; };
@@ -53,22 +52,15 @@ void Particle::AddParticleType(const char *name, double mass, int charge,
   if (fNParticleType < fMaxNumParticleType) {
     if (FindParticle(name) == -1) {
       if (width == 0) {
-        // fParticleType[fNParticleType] = new ParticleType{name, mass, charge};
-        ParticleType *pParticle = new ParticleType{name, mass, charge};
-        fParticleType.push_back(pParticle);
-        ++fNParticleType;
+        fParticleType[fNParticleType] = new ParticleType{name, mass, charge};
       } else {
-        // fParticleType[fNParticleType] = new ResonanceType{name, mass, charge,
-        // width};
-        ResonanceType *rParticle = new ResonanceType{name, mass, charge, width};
-        fParticleType.push_back(rParticle);
-        ++fNParticleType;
+        fParticleType[fNParticleType] =
+            new ResonanceType{name, mass, charge, width};
       }
+      ++fNParticleType;
     } else {
       std::cout << "This particle already is in the ParticeType array.\n";
     }
-  } else {
-    std::cerr << "I don't know how you did this, but it is extremely wrong";
   }
 };
 
@@ -153,11 +145,12 @@ double Particle::Energy() const {
 };
 
 double Particle::InvMass(Particle &p) const {
-  double const Energy2 = pow(Energy() + p.Energy(), 2);
-  double const Mom2 = pow(Momentum() + p.Momentum(), 2);
-  /*ATTENZIONE, controllare se non devo fare la somma vettoriale*/
+  double const En = Energy() + p.Energy();
+  double const Px = GetPx() + p.GetPx();
+  double const Py = GetPy() + p.GetPy();
+  double const Pz = GetPz() + p.GetPz();
 
-  return sqrt(Energy2 - Mom2);
+  return sqrt((En * En) - (Px * Px + Py * Py + Pz * Pz));
 };
 
 void Particle::SetIndex(int index) {
@@ -165,7 +158,6 @@ void Particle::SetIndex(int index) {
     std::cout << "Invalid particle index\n";
     return;
   }
-
   fIndex = index;
 };
 

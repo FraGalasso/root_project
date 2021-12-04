@@ -5,18 +5,18 @@
 
 class ParticleType {
  public:
-  // costruttore parametrico
+  // parametric constructor
   ParticleType(const char* name, double mass, int charge);
 
   const char* GetName() const;
   double GetMass() const;
   int GetCharge() const;
 
-  /*mi serve impementarlo virtual per poterlo chiamare su un generico
-    particletype*/
+  /*I need it to be virtual to use it both on a particleType and on a
+    resonanceType*/
   virtual double GetWidth() const;
 
-  // metodo che stampa a schermo gli attributi
+  // prints attributes
   virtual void Print() const;
 
  private:

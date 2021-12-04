@@ -5,12 +5,12 @@
 
 class ResonanceType : public ParticleType {
  public:
-  // costruttore parametrico
+  // parametric constructor
   ResonanceType(const char* name, double mass, int charge, double width);
 
   double GetWidth() const;
 
-  // metodo print come nella classe madre
+  // similar to the one in the base class
   void Print() const;
 
  private:
