@@ -22,6 +22,7 @@ class Particle {
     or if there are too many particles*/
   void static AddParticleType(const char *name, double mass, int charge,
                               double width);
+  void static AddParticleType(const char *name, double mass, int charge);
 
   // particle decay in dau1 and dau2
   int Decay2body(Particle &dau1, Particle &dau2) const;

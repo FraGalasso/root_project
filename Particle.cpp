@@ -59,9 +59,14 @@ void Particle::AddParticleType(const char *name, double mass, int charge,
       }
       ++fNParticleType;
     } else {
-      std::cout << "This particle already is in the ParticeType array.\n";
+      std::cout << "This particle already is in the ParticeType array.\n"
+                << "Why are you trying to add " << name << " again?\n";
     }
   }
+};
+
+void Particle::AddParticleType(const char *name, double mass, int charge) {
+  AddParticleType(name, mass, charge, 0.0);
 };
 
 int Particle::Decay2body(Particle &dau1, Particle &dau2) const {
@@ -171,7 +176,7 @@ void Particle::SetP(double px, double py, double pz) {
 
 void Particle::PrintParticleTypes() {
   for (int i = 0; i < fNParticleType; ++i) {
-    std::cout << "Particle Type: " << i + 1;
+    std::cout << "Particle Type: " << i + 1 << '\n';
     fParticleType[i]->Print();
     std::cout << '\n';
   }

@@ -45,10 +45,6 @@ int Particle::GetParticleCharge() const {
   return fParticleType.at(fIndex)->GetCharge();
 };
 const char *Particle::GetParticleName() {
-  // if (fIndex == -1) {
-  //   std::cout << "You didn't initialize a particle. c\n";
-  //   return " ";
-  // }
   return fParticleType.at(fIndex)->GetName();
 };
 

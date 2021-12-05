@@ -108,17 +108,17 @@ int main() {
   for (int i = 0; i < 100000; ++i) {
     for (int j = 0; j < 100; ++j) {
       phi = (gRandom->Uniform(2 * TMath::Pi()));
-      // phi_distrib->Fill(phi);
+      phi_distrib->Fill(phi);
       theta = (gRandom->Uniform(TMath::Pi()));
-      // theta_distrib->Fill(theta);
+      theta_distrib->Fill(theta);
       momentum = (gRandom->Exp(1));
-      // momentum_distrib->Fill(momentum);
+      momentum_distrib->Fill(momentum);
       px = momentum * TMath::Sin(theta) * TMath::Cos(phi);
       py = momentum * TMath::Sin(theta) * TMath::Sin(phi);
       pz = momentum * TMath::Cos(theta);
       p.SetP(px, py, pz);
-      // transverse_momentum = TMath::Sqrt(px * px + py * py);
-      // trans_momentum_distrib->Fill(transverse_momentum);
+      transverse_momentum = TMath::Sqrt(px * px + py * py);
+      trans_momentum_distrib->Fill(transverse_momentum);
 
       double x = gRandom->Uniform(1);
       if (x < 0.4) {
@@ -148,8 +148,8 @@ int main() {
           dau1.SetIndex("pion+");
           dau2.SetIndex("kaon-");
         } else {
-          dau1.SetIndex("pion+");
-          dau2.SetIndex("kaon-");
+          dau1.SetIndex("pion-");
+          dau2.SetIndex("kaon+");
         };
         p.Decay2body(dau1, dau2);
         generated_particle_vec.push_back(dau1);
@@ -165,11 +165,11 @@ int main() {
   for (int k = 0; k < int(particle_vec.size()); ++k) {
     if ((std::strcmp(particle_vec[k].GetParticleName(), "k*")) == 0) {
       continue;
-    };
+    }
     for (int l = k + 1; l < int(particle_vec.size()); ++l) {
       if ((std::strcmp(particle_vec[l].GetParticleName(), "k*")) == 0) {
         continue;
-      };
+      }
       double m = particle_vec[k].InvMass(particle_vec[l]);
       inv_mass->Fill(m);
       if (particle_vec[k].GetParticleCharge() !=
@@ -177,20 +177,20 @@ int main() {
         diff_sign_inv_mass->Fill(m);
       } else {
         same_sign_inv_mass->Fill(m);
-      };
+      }
       if ((std::strcmp(particle_vec[k].GetParticleName(), "pion+") == 0 &&
            std::strcmp(particle_vec[k].GetParticleName(), "kaon+") == 0) ||
           (std::strcmp(particle_vec[k].GetParticleName(), "pion-") == 0 &&
            std::strcmp(particle_vec[k].GetParticleName(), "kaon-") == 0)) {
         same_sign_inv_mass_ka_pi->Fill(m);
-      };
+      }
       if ((std::strcmp(particle_vec[k].GetParticleName(), "pion+") == 0 &&
            std::strcmp(particle_vec[k].GetParticleName(), "kaon-") == 0) ||
           (std::strcmp(particle_vec[k].GetParticleName(), "pion-") == 0 &&
            std::strcmp(particle_vec[k].GetParticleName(), "kaon+") == 0)) {
         diff_sign_inv_mass_ka_pi->Fill(m);
       }
-    };
+    }
     for (int l = 0; l < int(generated_particle_vec.size()); ++l) {
       if ((std::strcmp(particle_vec[l].GetParticleName(), "k*")) == 0) {
         continue;
