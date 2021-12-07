@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 
-#include "Particle2.hpp"
+#include "Particle.hpp"
 #include "TCanvas.h"
 #include "TFile.h"
 #include "TH1F.h"
@@ -11,11 +11,14 @@
 
 R__LOAD_LIBRARY(ParticleType_cpp.so);
 R__LOAD_LIBRARY(ResonanceType_cpp.so);
-R__LOAD_LIBRARY(Particle2_cpp.so);
+R__LOAD_LIBRARY(Particle_cpp.so);
 
 int main() {
-  std::vector<Particle> particle_vec{{}};
-  std::vector<Particle> generated_particle_vec{{}};
+  // vectors where I will store my particles
+  std::vector<Particle> particle_vec{};
+  std::vector<Particle> generated_particle_vec{};
+
+  // initializing different particle types
   Particle::AddParticleType("pion+", 0.13957, 1);
   Particle::AddParticleType("pion-", 0.13957, -1);
   Particle::AddParticleType("kaon+", 0.49367, 1);
@@ -31,7 +34,7 @@ int main() {
   std::vector<int> particles_generated = {0, 0, 0, 0, 0, 0, 0};
 
   // rootfile where I can save my histos
-  TFile *file = new TFile("chediocelamandibuona.root", "RECREATE");
+  // TFile *file = new TFile("chediocelamandibuona.root", "RECREATE");
 
   // histo for phi distribution
   TH1F *phi_distrib =
@@ -94,9 +97,11 @@ int main() {
       10000, 0, 5);
   part_gen->Sumw2();
 
-  Particle p("name", 0, 0, 0);
-  Particle dau1("name", 0, 0, 0);
-  Particle dau2("name", 0, 0, 0);
+  /* inizializing particles as protons, just to avoid errors from using
+     particles with uninitialized names, I will change them later on*/
+  Particle p("proton", 0, 0, 0);
+  Particle dau1("proton", 0, 0, 0);
+  Particle dau2("proton", 0, 0, 0);
   double phi{0};
   double theta{0};
   double momentum{0};
@@ -104,6 +109,7 @@ int main() {
   double py{0};
   double pz{0};
   double transverse_momentum{0};
+  gRandom->SetSeed();
 
   for (int i = 0; i < 100000; ++i) {
     for (int j = 0; j < 100; ++j) {
@@ -120,6 +126,8 @@ int main() {
       transverse_momentum = TMath::Sqrt(px * px + py * py);
       trans_momentum_distrib->Fill(transverse_momentum);
 
+      // generating a random particle, proportions are:
+      // 80% pions, 10% kaons, 9% protons, 1% k*(resonance)
       double x = gRandom->Uniform(1);
       if (x < 0.4) {
         p.SetIndex("pion+");
@@ -142,6 +150,8 @@ int main() {
       } else {
         p.SetIndex("k*");
         ++particles_generated[6];
+        // if a particle is a k* it will decay, proportions are:
+        // 50% pion+/kaon-, 50% pion-/kaon+
         double y = gRandom->Uniform(1);
         if (y < 0.5) {
           dau1.SetIndex("pion+");
@@ -152,18 +162,17 @@ int main() {
         };
         p.Decay2body(dau1, dau2);
         generated_particle_vec.push_back(dau1);
-        generated_particle_vec.push_back(dau1);
+        generated_particle_vec.push_back(dau2);
         part_gen->Fill(dau1.InvMass(dau2));
       }
       particle_vec.push_back(p);
       energy_distrib->Fill(p.Energy());
     }
-
+    // filling up all invariant mass histos
     for (int k = 0; k < int(particle_vec.size()); ++k) {
       if ((std::strcmp(particle_vec[k].GetParticleName(), "k*") == 0)) {
         continue;
       }
-      std::cout << "stocazzo\n";
       for (int l = k + 1; l < int(particle_vec.size()); ++l) {
         if ((std::strcmp(particle_vec[l].GetParticleName(), "k*")) == 0) {
           continue;
@@ -209,7 +218,6 @@ int main() {
           }
         }
       }
-
       for (int f = 0; f < int(generated_particle_vec.size()); ++f) {
         double const m = particle_vec[k].InvMass(generated_particle_vec[f]);
         inv_mass->Fill(m);
@@ -262,7 +270,6 @@ int main() {
         }
       }
     }
-
     for (int a = 0; a < int(generated_particle_vec.size()); ++a) {
       for (int b = a + 1; b < int(generated_particle_vec.size()); ++b) {
         double const m =
@@ -321,19 +328,24 @@ int main() {
         }
       }
     }
+    /* when I'm done with all the invariant mass stuff, I have to clear the 2
+       vectors and start again*/
     particle_vec.clear();
     generated_particle_vec.clear();
   }
 
+  // histo for particle type distribution
   TH1F *histoparticles =
       new TH1F("histoparticles", "Particles generated", 7, 1, 7);
-
-  for (int n = 0; n < 7; ++n) {
-    histoparticles->Fill(n + 1, particles_generated[n]);
+  for (int n = 0; n < int(particles_generated.size()); ++n) {
+    histoparticles->SetBinContent(n, particles_generated[n]);
+    std::cout << "Particle Number: " << n
+              << " | Entries: " << particles_generated[n] << '\n';
   };
 
+  // drawing histos on a canvas
   TCanvas *can = new TCanvas("can", "Many Histos", 200, 10, 600, 400);
-  can->Divide(3, 4);
+  can->Divide(4, 3);
 
   can->cd(1);
   histoparticles->DrawCopy("H");
@@ -372,6 +384,6 @@ int main() {
   part_gen->DrawCopy("H");
   part_gen->DrawCopy("E, P, same");
 
-  file->Write();
-  file->Close();
+  // file->Write();
+  // file->Close();
 }
