@@ -49,8 +49,10 @@ void analyze() {
   std::cout << "same_inv_mass_ka_pi: " << same_inv_mass_ka_pi->GetEntries()
             << '\n';
   // generated particles invariant mass distribution
-  TH1F *part_gen = (TH1F *)f->Get("part_gen");
-  std::cout << "part_gen: " << part_gen->GetEntries() << '\n';
+  TH1F *k_inv_mass = (TH1F *)f->Get("k_inv_mass");
+  std::cout << "k_inv_mass: " << k_inv_mass->GetEntries() << '\n';
+
+  TCanvas *can = new TCanvas("can", "Many Histos", 200, 10, 1200, 800);
 
   // massive histogram cosmetics session
 
@@ -90,8 +92,9 @@ void analyze() {
   TF1 *fun2 = theta_distrib->GetFunction("pol0");
   fun2->SetLineColor(kRed);
   fun2->SetLineWidth(2);
-  std::cout << "\nFitting theta distribution:\nParameters: "
-            << fun2->GetParameter(0) << " +/- " << fun2->GetParError(0) << '\n';
+  std::cout << "\nFitting theta distribution:\nParameter: "
+            << fun2->GetParameter(0) << " +/- " << fun2->GetParError(0)
+            << "\n\n";
 
   momentum_distrib->GetXaxis()->SetTitle("Momentum distribution");
   momentum_distrib->GetYaxis()->SetTitle("Occurrences");
@@ -102,19 +105,64 @@ void analyze() {
   fun3->SetLineColor(kRed);
   fun3->SetLineWidth(2);
   // m = 1 / (-p1)
-  double fit_mean = 1/-(fun3->GetParameter(1));
+  double fit_mean = 1 / -(fun3->GetParameter(1));
   // dm = (dp1 / (-p1)) * m
-  double fit_mean_err = (fun3->GetParError(1)/-(fun3->GetParameter(1)))*fit_mean;
+  double fit_mean_err =
+      (fun3->GetParError(1) / -(fun3->GetParameter(1))) * fit_mean;
   std::cout << "Fitting momentum distribution:\n"
             << "Mean from the histogram: " << momentum_distrib->GetMean()
             << " +/- " << momentum_distrib->GetMeanError() << '\n'
-            << "Mean from the fit: " << fit_mean << " +/- "
-            << fit_mean_err << '\n';
+            << "Mean from the fit: " << fit_mean << " +/- " << fit_mean_err
+            << "\n\n";
+
+  trans_momentum_distrib->GetXaxis()->SetTitle(
+      "Transverse momentum distribution");
+  trans_momentum_distrib->GetYaxis()->SetTitle("Occurrences");
+  trans_momentum_distrib->SetLineColor(kBlue);
+  trans_momentum_distrib->SetFillColor(kCyan);
+
+  energy_distrib->GetXaxis()->SetTitle("Energy distribution");
+  energy_distrib->GetYaxis()->SetTitle("Occurrences");
+  energy_distrib->SetLineColor(kBlue);
+  energy_distrib->SetFillColor(kCyan);
+
+  inv_mass->GetXaxis()->SetTitle("Invariant mass");
+  inv_mass->GetYaxis()->SetTitle("Occurrences");
+  inv_mass->SetLineColor(kBlue);
+  inv_mass->SetFillColor(kCyan);
+
+  diff_inv_mass->GetXaxis()->SetTitle(
+      "Invariant mass of particles with different charge");
+  diff_inv_mass->GetYaxis()->SetTitle("Occurrences");
+  diff_inv_mass->SetLineColor(kBlue);
+  diff_inv_mass->SetFillColor(kCyan);
+
+  same_inv_mass->GetXaxis()->SetTitle(
+      "Invariant mass of particles with same charge");
+  same_inv_mass->GetYaxis()->SetTitle("Occurrences");
+  same_inv_mass->SetLineColor(kBlue);
+  same_inv_mass->SetFillColor(kCyan);
+
+  diff_inv_mass_ka_pi->GetXaxis()->SetTitle(
+      "Invariant mass of kaons and pions with different charge");
+  diff_inv_mass_ka_pi->GetYaxis()->SetTitle("Occurrences");
+  diff_inv_mass_ka_pi->SetLineColor(kBlue);
+  diff_inv_mass_ka_pi->SetFillColor(kCyan);
+
+  same_inv_mass_ka_pi->GetXaxis()->SetTitle(
+      "Invariant mass of kaons and pions with same charge");
+  same_inv_mass_ka_pi->GetYaxis()->SetTitle("Occurrences");
+  same_inv_mass_ka_pi->SetLineColor(kBlue);
+  same_inv_mass_ka_pi->SetFillColor(kCyan);
+
+  k_inv_mass->GetXaxis()->SetTitle(
+      "Invariant mass of particles from a decayment");
+  k_inv_mass->GetYaxis()->SetTitle("Occurrences");
+  k_inv_mass->SetLineColor(kBlue);
+  k_inv_mass->SetFillColor(kCyan);
 
   // drawing histos on a canvas
-  TCanvas *can = new TCanvas("can", "Many Histos", 200, 10, 600, 400);
   can->Divide(4, 3);
-
   can->cd(1);
   histoparticles->DrawCopy("H");
   histoparticles->DrawCopy("E, P, same");
@@ -149,8 +197,76 @@ void analyze() {
   same_inv_mass_ka_pi->DrawCopy("H");
   same_inv_mass_ka_pi->DrawCopy("E, P, same");
   can->cd(12);
-  part_gen->DrawCopy("H");
-  part_gen->DrawCopy("E, P, same");
+  k_inv_mass->DrawCopy("H");
+  k_inv_mass->DrawCopy("E, P, same");
+
+  TH1F *difference1 = new TH1F("difference1",
+                               "Difference between opposite and same charge "
+                               "kaons and pions distribution",
+                               400, 0, 5);
+  difference1->Sumw2();
+  difference1->Add(diff_inv_mass_ka_pi, same_inv_mass_ka_pi, 1, -1);
+  difference1->GetXaxis()->SetTitle("Invariant mass");
+  difference1->GetYaxis()->SetTitle("Occurrences");
+  difference1->SetLineColor(kBlue);
+  difference1->SetFillColor(kCyan);
+
+  TH1F *difference2 = new TH1F(
+      "difference2",
+      "Difference between opposite and same charge particle distribution",
+      400, 0, 5);
+  difference2->Sumw2();
+  difference2->Add(diff_inv_mass, same_inv_mass, 1, -1);
+  difference2->GetXaxis()->SetTitle("Invariant mass");
+  difference2->GetYaxis()->SetTitle("Occurrences");
+  difference2->SetLineColor(kBlue);
+  difference2->SetFillColor(kCyan);
+
+  TF1 *fun4 = new TF1("fun4", "gaus", 0.6, 1.3);
+  fun4->SetLineColor(kRed);
+  fun4->SetLineWidth(2);
+  TF1 *fun5 = new TF1("fun5", "gaus", 0.6, 1.3);
+  fun5->SetLineColor(kRed);
+  fun5->SetLineWidth(2);
+  TF1 *fun6 = new TF1("fun6", "gaus", 0.6, 1.3);
+  fun6->SetLineColor(kRed);
+  fun6->SetLineWidth(2);
+
+  k_inv_mass->Fit("fun4", "Q");
+  std::cout
+      << "Fitting invariant mass distribution of particles from decayment:\n";
+  for (int i = 0; i < 3; ++i) {
+    std::cout << "p[" << i << "]: " << fun4->GetParameter(i) << " +/- "
+              << fun4->GetParError(i) << "\n\n";
+  }
+  difference1->Fit("fun5", "Q");
+  std::cout << "Fitting difference between opposite and same charge kaons and "
+               "pions distribution:\n";
+  for (int i = 0; i < 3; ++i) {
+    std::cout << "p[" << i << "]: " << fun5->GetParameter(i) << " +/- "
+              << fun5->GetParError(i) << "\n\n";
+  }
+  difference2->Fit("fun6", "Q");
+  std::cout << "Fitting difference between opposite and same charge particle "
+               "distribution:\n";
+  for (int i = 0; i < 3; ++i) {
+    std::cout << "p[" << i << "]: " << fun6->GetParameter(i) << " +/- "
+              << fun6->GetParError(i) << "\n\n";
+  }
+
+  TCanvas *diff_can = new TCanvas("diff_can", "Differences", 200, 10, 600, 400);
+  diff_can->Divide(1, 3);
+  diff_can->cd(1);
+  k_inv_mass->DrawCopy("H");
+  k_inv_mass->DrawCopy("E, P, same");
+  diff_can->cd(2);
+  difference1->DrawCopy("H");
+  difference1->DrawCopy("E, P, same");
+  diff_can->cd(3);
+  difference1->DrawCopy("H");
+  difference1->DrawCopy("E, P, same");
+  difference2->DrawCopy("H");
+  difference2->DrawCopy("E, P, same");
 
   f->Close();
 }

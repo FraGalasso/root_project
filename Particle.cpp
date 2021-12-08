@@ -95,7 +95,7 @@ int Particle::Decay2body(Particle &dau1, Particle &dau2) const {
   }
 
   if (massMot < massDau1 + massDau2) {
-    std::cout << "Decayment cannot be preformed because mass is too low in "
+    std::cout << "Decayment cannot be performed because mass is too low in "
                  "this channel\n";
     return 2;
   }
