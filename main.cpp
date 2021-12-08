@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "Particle.hpp"
-#include "TCanvas.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TMath.h"
@@ -33,9 +32,6 @@ int main() {
   // 5 means antiproton, 6 means k*
   std::vector<int> particles_generated = {0, 0, 0, 0, 0, 0, 0};
 
-  // rootfile where I can save my histos
-  // TFile *file = new TFile("chediocelamandibuona.root", "RECREATE");
-
   // histo for phi distribution
   TH1F *phi_distrib =
       new TH1F("phi_distrib", "Distribution of phi", 400, 0, 2 * TMath::Pi());
@@ -60,35 +56,35 @@ int main() {
   // histo for invariant mass distribution
   TH1F *inv_mass =
       new TH1F("inv_mass", "Distribution of invariant mass", 10000, 0, 5);
-  // inv_mass->Sumw2();
+  inv_mass->Sumw2();
 
   // histo for invariant mass distribution with different sign
   TH1F *diff_inv_mass = new TH1F(
       "diff_inv_mass",
       "Distribution of invariant mass of particles with different signs", 10000,
       0, 5);
-  // diff_inv_mass->Sumw2();
+  diff_inv_mass->Sumw2();
 
   // histo for invariant mass distribution with same sign
   TH1F *same_inv_mass =
       new TH1F("same_inv_mass",
                "Distribution of invariant mass of particles with same signs",
                10000, 0, 5);
-  // same_inv_mass->Sumw2();
+  same_inv_mass->Sumw2();
 
   // histo for invariant mass of kaons and pions with same sign
   TH1F *same_inv_mass_ka_pi = new TH1F(
       "same_inv_mass_ka_pi",
       "Distribution of invariant mass of kaons and pions with same signs",
       10000, 0, 5);
-  // same_inv_mass_ka_pi->Sumw2();
+  same_inv_mass_ka_pi->Sumw2();
 
   // histo for invariant mass of kaons and pions with different sign
   TH1F *diff_inv_mass_ka_pi = new TH1F(
       "diff_inv_mass_ka_pi",
       "Distribution of invariant mass of kaons and pions with different signs",
       10000, 0, 5);
-  // diff_inv_mass_ka_pi->Sumw2();
+  diff_inv_mass_ka_pi->Sumw2();
 
   // histo for invariant mass of particles generated from a decayment
   TH1F *part_gen = new TH1F(
@@ -338,52 +334,40 @@ int main() {
   TH1F *histoparticles =
       new TH1F("histoparticles", "Particles generated", 7, 1, 7);
   for (int n = 0; n < int(particles_generated.size()); ++n) {
-    histoparticles->SetBinContent(n, particles_generated[n]);
-    std::cout << "Particle Number: " << n
+    histoparticles->SetBinContent(n + 1, (particles_generated[n]) / total);
+    std::cout << "Particle Number: " << n + 1
               << " | Entries: " << particles_generated[n] << '\n';
   };
 
-  // drawing histos on a canvas
-  TCanvas *can = new TCanvas("can", "Many Histos", 200, 10, 600, 400);
-  can->Divide(4, 3);
+  // rootfile where I can save my histos
+  TFile *file = new TFile("analysis.root", "RECREATE");
 
-  can->cd(1);
-  histoparticles->DrawCopy("H");
-  histoparticles->DrawCopy("E, P, same");
-  can->cd(2);
-  phi_distrib->DrawCopy("H");
-  phi_distrib->DrawCopy("E, P, same");
-  can->cd(3);
-  theta_distrib->DrawCopy("H");
-  theta_distrib->DrawCopy("E, P, same");
-  can->cd(4);
-  momentum_distrib->DrawCopy("H");
-  momentum_distrib->DrawCopy("E, P, same");
-  can->cd(5);
-  trans_momentum_distrib->DrawCopy("H");
-  trans_momentum_distrib->DrawCopy("E, P, same");
-  can->cd(6);
-  energy_distrib->DrawCopy("H");
-  energy_distrib->DrawCopy("E, P, same");
-  can->cd(7);
-  inv_mass->DrawCopy("H");
-  inv_mass->DrawCopy("E, P, same");
-  can->cd(8);
-  diff_inv_mass->DrawCopy("H");
-  diff_inv_mass->DrawCopy("E, P, same");
-  can->cd(9);
-  same_inv_mass->DrawCopy("H");
-  same_inv_mass->DrawCopy("E, p, same");
-  can->cd(10);
-  diff_inv_mass_ka_pi->DrawCopy("H");
-  diff_inv_mass_ka_pi->DrawCopy("E, P, same");
-  can->cd(11);
-  same_inv_mass_ka_pi->DrawCopy("H");
-  same_inv_mass_ka_pi->DrawCopy("E, P, same");
-  can->cd(12);
-  part_gen->DrawCopy("H");
-  part_gen->DrawCopy("E, P, same");
+  histoparticles->Write("histoparticles");
+  phi_distrib->Write("phi_distrib");
+  theta_distrib->Write("theta_distrib");
+  momentum_distrib->Write("momentum_distrib");
+  trans_momentum_distrib->Write("trans_momentum_distrib");
+  energy_distrib->Write("energy_distrib");
+  inv_mass->Write("inv_mass");
+  diff_inv_mass->Write("diff_inv_mass");
+  same_inv_mass->Write("same_inv_mass");
+  diff_inv_mass_ka_pi->Write("diff_inv_mass_ka_pi");
+  same_inv_mass_ka_pi->Write("same_inv_mass_ka_pi");
+  part_gen->Write("part_gen");
 
-  // file->Write();
-  // file->Close();
+  file->Close();
+
+  delete histoparticles;
+  delete phi_distrib;
+  delete theta_distrib;
+  delete momentum_distrib;
+  delete trans_momentum_distrib;
+  delete energy_distrib;
+  delete inv_mass;
+  delete diff_inv_mass;
+  delete same_inv_mass;
+  delete diff_inv_mass_ka_pi;
+  delete same_inv_mass_ka_pi;
+  delete part_gen;
+  delete file;
 }
