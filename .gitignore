@@ -4,6 +4,7 @@
 *.root
 *.pcm
 *.exe
+*.pdf
 
 .clang-format
 

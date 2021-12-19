@@ -18,9 +18,6 @@ int main() {
   std::vector<Particle> particle_vec{};
   std::vector<Particle> generated_particle_vec{};
 
-  std::cout << particle_vec.size() << " " << generated_particle_vec.size()
-            << "\n\n";
-
   // initializing different particle types
   Particle::AddParticleType("pion+", 0.13957, 1);
   Particle::AddParticleType("pion-", 0.13957, -1);
