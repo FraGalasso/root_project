@@ -5,8 +5,10 @@
 *.pcm
 *.exe
 *.pdf
+*.C
 
 .clang-format
+.vscode
 
 test_programs
 

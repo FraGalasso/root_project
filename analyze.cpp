@@ -4,15 +4,11 @@
 #include "TF1.h"
 #include "TFile.h"
 #include "TH1F.h"
-#include "TLegend.h"
 #include "TMath.h"
 #include "TROOT.h"
 #include "TStyle.h"
 
 void analyze() {
-  gStyle->SetOptFit(111);
-  gStyle->SetOptStat(112201);
-
   // rootfile
   TFile *f = new TFile("analysis.root");
 
@@ -61,12 +57,12 @@ void analyze() {
   TH1F *k_inv_mass = (TH1F *)f->Get("k_inv_mass");
   std::cout << "k_inv_mass: " << k_inv_mass->GetEntries() << " entries\n";
 
-  TCanvas *can1 =
-      new TCanvas("can1", "Particles distribution", 200, 10, 1000, 600);
-  TCanvas *can2 =
-      new TCanvas("can2", "Momentum and energy", 200, 10, 1000, 600);
-  TCanvas *can3 =
-      new TCanvas("can3", "Invariant mass analysis", 200, 10, 1000, 600);
+  TCanvas *distrib =
+      new TCanvas("distrib", "Particles distribution", 200, 10, 1000, 600);
+  TCanvas *momentum =
+      new TCanvas("momentum", "Momentum and energy", 200, 10, 1000, 600);
+  TCanvas *invmass =
+      new TCanvas("invmass", "Invariant mass analysis", 200, 10, 1000, 600);
 
   // massive histogram cosmetics session
 
@@ -178,62 +174,62 @@ void analyze() {
   k_inv_mass->SetFillColor(kCyan);
 
   // drawing histos on canvases
-  can1->Divide(1, 3);
-  can1->cd(1);
+  distrib->Divide(1, 3);
+  distrib->cd(1);
   histoparticles->DrawCopy("H");
   histoparticles->DrawCopy("E, P, same");
 
-  can1->cd(2);
+  distrib->cd(2);
   phi_distrib->DrawCopy("H");
   phi_distrib->DrawCopy("E, P, same");
-  TLegend *leg1 = new TLegend(.1, .7, .3, .9, "Phi distribution");
-  leg1->AddEntry(phi_distrib, "Simulated distribution");
-  leg1->AddEntry(fun1, "Uniform distribution");
-  leg1->Draw("same");
+  // TLegend *leg1 = new TLegend(.1, .7, .3, .9, "Phi distribution");
+  // leg1->AddEntry(phi_distrib, "Simulated distribution");
+  // leg1->AddEntry(fun1, "Uniform distribution");
+  // leg1->Draw("same");
 
-  can1->cd(3);
+  distrib->cd(3);
   theta_distrib->DrawCopy("H");
   theta_distrib->DrawCopy("E, P, same");
-  TLegend *leg2 = new TLegend(.1, .7, .3, .9, "Theta distribution");
-  leg2->AddEntry(theta_distrib, "Simulated distribution");
-  leg2->AddEntry(fun2, "Uniform distribution");
-  leg2->Draw("same");
+  // TLegend *leg2 = new TLegend(.1, .7, .3, .9, "Theta distribution");
+  // leg2->AddEntry(theta_distrib, "Simulated distribution");
+  // leg2->AddEntry(fun2, "Uniform distribution");
+  // leg2->Draw("same");
 
-  can2->Divide(1, 3);
-  can2->cd(1);
+  momentum->Divide(1, 3);
+  momentum->cd(1);
   momentum_distrib->DrawCopy("H");
   momentum_distrib->DrawCopy("E, P, same");
-  TLegend *leg3 = new TLegend(.1, .7, .3, .9, "Momentum");
-  leg3->AddEntry(momentum_distrib, "Simulated distribution");
-  leg3->AddEntry(fun3, "Exponential distribution");
-  leg3->Draw("same");
+  // TLegend *leg3 = new TLegend(.1, .7, .3, .9, "Momentum");
+  // leg3->AddEntry(momentum_distrib, "Simulated distribution");
+  // leg3->AddEntry(fun3, "Exponential distribution");
+  // leg3->Draw("same");
 
-  can2->cd(2);
+  momentum->cd(2);
   trans_momentum_distrib->DrawCopy("H");
   trans_momentum_distrib->DrawCopy("E, P, same");
 
-  can2->cd(3);
+  momentum->cd(3);
   energy_distrib->DrawCopy("H");
   energy_distrib->DrawCopy("E, P, same");
 
-  can3 -> Divide(3, 2);
-  can3->cd(1);
+  invmass->Divide(3, 2);
+  invmass->cd(1);
   inv_mass->DrawCopy("H");
   inv_mass->DrawCopy("E, P, same");
 
-  can3->cd(2);
+  invmass->cd(2);
   diff_inv_mass->DrawCopy("H");
   diff_inv_mass->DrawCopy("E, P, same");
 
-  can3->cd(3);
+  invmass->cd(3);
   same_inv_mass->DrawCopy("H");
   same_inv_mass->DrawCopy("E, p, same");
 
-  can3->cd(4);
+  invmass->cd(4);
   diff_inv_mass_ka_pi->DrawCopy("H");
   diff_inv_mass_ka_pi->DrawCopy("E, P, same");
 
-  can3->cd(5);
+  invmass->cd(5);
   same_inv_mass_ka_pi->DrawCopy("H");
   same_inv_mass_ka_pi->DrawCopy("E, P, same");
 
@@ -296,7 +292,7 @@ void analyze() {
       << "\nStd Dev from difference between opposite and same charge "
          "particles: "
       << fun6->GetParameter(2) << " +/- " << fun6->GetParError(2)
-      << "\nChiSquare/NDF: " << fun6->GetChisquare() / fun6->GetNDF();
+      << "\nChiSquare/NDF: " << fun6->GetChisquare() / fun6->GetNDF() << '\n';
 
   TCanvas *diff_can = new TCanvas("diff_can", "Differences", 200, 10, 600, 400);
   diff_can->Divide(1, 3);
@@ -310,18 +306,18 @@ void analyze() {
   difference2->DrawCopy("H");
   difference2->DrawCopy("E, P, same");
 
-  /*diff_can->Print("differences.pdf");
+  diff_can->Print("differences.pdf");
   diff_can->Print("differences.C");
   diff_can->Print("differences.root");
-  can1->Print("particles.pdf");
-  can1->Print("particles.C");
-  can1->Print("particles.root");
-  can2->Print("momentum.pdf");
-  can2->Print("momentum.C");
-  can2->Print("momentum.root");
-  can3->Print("invmass.pdf");
-  can3->Print("invmass.C");
-  can3->Print("invmass.root");*/
+  distrib->Print("particles.pdf");
+  distrib->Print("particles.C");
+  distrib->Print("particles.root");
+  momentum->Print("momentum.pdf");
+  momentum->Print("momentum.C");
+  momentum->Print("momentum.root");
+  invmass->Print("invmass.pdf");
+  invmass->Print("invmass.C");
+  invmass->Print("invmass.root");
 
   f->Close();
 }
