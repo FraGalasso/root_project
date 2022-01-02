@@ -52,20 +52,20 @@ class Particle {
   double p_y_{0};
   double p_z_{0};
 
-  // indice che dice di che tipo di particella si tratta
+  // index that states the type of the particle
   int fIndex;
 
-  // numero massimo di tipi di particelle generabili
+  // maximum quantity of possible types of particles
   static const int fMaxNumParticleType = 10;
 
   static ParticleType *fParticleType[fMaxNumParticleType];
 
-  // contatore di tipi di particella istanziati
+  // counter for existing types of particles
   // fNParticleType <= fMaxNumParticleType
   static int fNParticleType;
 
-  // trova il nome di una particella in fParticleType, ritorna l'indice
-  // se non la trova ritorna -1
+  // returns index of a type of particle, if found
+  // otherwise returns -1
   int static FindParticle(const char *name);
 
   void Boost(double bx, double by, double bz);
