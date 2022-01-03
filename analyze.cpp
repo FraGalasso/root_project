@@ -59,10 +59,9 @@ void analyze() {
 
   TCanvas *distrib =
       new TCanvas("distrib", "Particles distribution", 200, 10, 1000, 600);
-  TCanvas *momentum =
-      new TCanvas("momentum", "Momentum and energy", 200, 10, 1000, 600);
-  TCanvas *invmass =
-      new TCanvas("invmass", "Invariant mass analysis", 200, 10, 1000, 600);
+  TCanvas *invmass_mom = new TCanvas(
+      "invmass_mom", "Invariant mass, transverse momentum and energy analysis",
+      200, 10, 1000, 600);
 
   // massive histogram cosmetics session
 
@@ -95,7 +94,11 @@ void analyze() {
   fun1->SetLineColor(kRed);
   fun1->SetLineWidth(2);
   std::cout << "\nFitting phi distribution:\nParameters: "
-            << fun1->GetParameter(0) << " +/- " << fun1->GetParError(0) << '\n';
+            << fun1->GetParameter(0) << " +/- " << fun1->GetParError(0)
+            << "\nChiSquare: " << fun1->GetChisquare()
+            << "\nNDF: " << fun1->GetNDF()
+            << "\nChiSquare/NDF: " << (fun1->GetChisquare()) / (fun1->GetNDF())
+            << '\n';
 
   theta_distrib->GetXaxis()->SetTitle("Theta distribution (rad)");
   theta_distrib->GetYaxis()->SetTitle("Occurrences");
@@ -106,9 +109,12 @@ void analyze() {
   fun2->SetLineWidth(2);
   std::cout << "\nFitting theta distribution:\nParameter: "
             << fun2->GetParameter(0) << " +/- " << fun2->GetParError(0)
+            << "\nChiSquare: " << fun2->GetChisquare()
+            << "\nNDF: " << fun2->GetNDF()
+            << "\nChiSquare/NDF: " << (fun2->GetChisquare()) / (fun2->GetNDF())
             << "\n\n";
 
-  momentum_distrib->GetXaxis()->SetTitle("Momentum distribution (kg*m/s)");
+  momentum_distrib->GetXaxis()->SetTitle("Momentum distribution (Gev)");
   momentum_distrib->GetYaxis()->SetTitle("Occurrences");
   momentum_distrib->SetLineColor(kBlue);
   momentum_distrib->SetFillColor(kCyan);
@@ -125,10 +131,13 @@ void analyze() {
             << "Mean from the histogram: " << momentum_distrib->GetMean()
             << " +/- " << momentum_distrib->GetMeanError() << '\n'
             << "Mean from the fit: " << fit_mean << " +/- " << fit_mean_err
+            << "\nChiSquare: " << fun3->GetChisquare()
+            << "\nNDF: " << fun3->GetNDF()
+            << "\nChiSquare/NDF: " << (fun3->GetChisquare()) / (fun3->GetNDF())
             << "\n\n";
 
   trans_momentum_distrib->GetXaxis()->SetTitle(
-      "Transverse momentum distribution kg*m/s)");
+      "Transverse momentum distribution (GeV)");
   trans_momentum_distrib->GetYaxis()->SetTitle("Occurrences");
   trans_momentum_distrib->SetLineColor(kBlue);
   trans_momentum_distrib->SetFillColor(kCyan);
@@ -174,7 +183,7 @@ void analyze() {
   k_inv_mass->SetFillColor(kCyan);
 
   // drawing histos on canvases
-  distrib->Divide(1, 3);
+  distrib->Divide(2, 2);
   distrib->cd(1);
   histoparticles->DrawCopy("H");
   histoparticles->DrawCopy("E, P, same");
@@ -182,56 +191,47 @@ void analyze() {
   distrib->cd(2);
   phi_distrib->DrawCopy("H");
   phi_distrib->DrawCopy("E, P, same");
-  // TLegend *leg1 = new TLegend(.1, .7, .3, .9, "Phi distribution");
-  // leg1->AddEntry(phi_distrib, "Simulated distribution");
-  // leg1->AddEntry(fun1, "Uniform distribution");
-  // leg1->Draw("same");
 
   distrib->cd(3);
   theta_distrib->DrawCopy("H");
   theta_distrib->DrawCopy("E, P, same");
-  // TLegend *leg2 = new TLegend(.1, .7, .3, .9, "Theta distribution");
-  // leg2->AddEntry(theta_distrib, "Simulated distribution");
-  // leg2->AddEntry(fun2, "Uniform distribution");
-  // leg2->Draw("same");
 
-  momentum->Divide(1, 3);
-  momentum->cd(1);
+  distrib->cd(4);
   momentum_distrib->DrawCopy("H");
   momentum_distrib->DrawCopy("E, P, same");
-  // TLegend *leg3 = new TLegend(.1, .7, .3, .9, "Momentum");
-  // leg3->AddEntry(momentum_distrib, "Simulated distribution");
-  // leg3->AddEntry(fun3, "Exponential distribution");
-  // leg3->Draw("same");
 
-  momentum->cd(2);
-  trans_momentum_distrib->DrawCopy("H");
-  trans_momentum_distrib->DrawCopy("E, P, same");
-
-  momentum->cd(3);
-  energy_distrib->DrawCopy("H");
-  energy_distrib->DrawCopy("E, P, same");
-
-  invmass->Divide(3, 2);
-  invmass->cd(1);
+  invmass_mom->Divide(4, 2);
+  invmass_mom->cd(1);
   inv_mass->DrawCopy("H");
   inv_mass->DrawCopy("E, P, same");
 
-  invmass->cd(2);
+  invmass_mom->cd(2);
   diff_inv_mass->DrawCopy("H");
   diff_inv_mass->DrawCopy("E, P, same");
 
-  invmass->cd(3);
+  invmass_mom->cd(3);
   same_inv_mass->DrawCopy("H");
   same_inv_mass->DrawCopy("E, p, same");
 
-  invmass->cd(4);
+  invmass_mom->cd(4);
   diff_inv_mass_ka_pi->DrawCopy("H");
   diff_inv_mass_ka_pi->DrawCopy("E, P, same");
 
-  invmass->cd(5);
+  invmass_mom->cd(5);
   same_inv_mass_ka_pi->DrawCopy("H");
   same_inv_mass_ka_pi->DrawCopy("E, P, same");
+
+  invmass_mom->cd(6);
+  trans_momentum_distrib->DrawCopy("H");
+  trans_momentum_distrib->DrawCopy("E, P, same");
+
+  invmass_mom->cd(7);
+  energy_distrib->DrawCopy("H");
+  energy_distrib->DrawCopy("E, P, same");
+
+  invmass_mom->cd(7);
+  momentum_distrib->DrawCopy("H");
+  momentum_distrib->DrawCopy("E, P, same");
 
   // histo for difference between opposite and same charge kaons and pions
   // distribution
@@ -278,7 +278,8 @@ void analyze() {
       << "\nMean from k* decay: " << fun4->GetParameter(1) << " +/- "
       << fun4->GetParError(1)
       << "\nStd Dev from k* decay: " << fun4->GetParameter(2) << " +/- "
-      << fun4->GetParError(2)
+      << fun4->GetParError(2) << "\nAmplitude: " << fun4->GetParameter(0)
+      << " +/- " << fun4->GetParError(0)
       << "\nChiSquare/NDF: " << fun4->GetChisquare() / fun4->GetNDF()
       << "\nMean from difference between opposite and same charge kaons and "
          "pions: "
@@ -286,12 +287,16 @@ void analyze() {
       << "\nStd Dev from difference between opposite and same charge kaons and "
          "pions: "
       << fun5->GetParameter(2) << " +/- " << fun5->GetParError(2)
+      << "\nAmplitude: " << fun5->GetParameter(0) << " +/- "
+      << fun5->GetParError(0)
       << "\nChiSquare/NDF: " << fun5->GetChisquare() / fun5->GetNDF()
       << "\nMean from difference between opposite and same charge particles: "
       << fun6->GetParameter(1) << " +/- " << fun6->GetParError(1)
       << "\nStd Dev from difference between opposite and same charge "
          "particles: "
       << fun6->GetParameter(2) << " +/- " << fun6->GetParError(2)
+      << "\nAmplitude: " << fun6->GetParameter(0) << " +/- "
+      << fun6->GetParError(0)
       << "\nChiSquare/NDF: " << fun6->GetChisquare() / fun6->GetNDF() << '\n';
 
   TCanvas *diff_can = new TCanvas("diff_can", "Differences", 200, 10, 600, 400);
@@ -306,18 +311,15 @@ void analyze() {
   difference2->DrawCopy("H");
   difference2->DrawCopy("E, P, same");
 
-  diff_can->Print("differences.pdf");
-  diff_can->Print("differences.C");
-  diff_can->Print("differences.root");
   distrib->Print("particles.pdf");
   distrib->Print("particles.C");
   distrib->Print("particles.root");
-  momentum->Print("momentum.pdf");
-  momentum->Print("momentum.C");
-  momentum->Print("momentum.root");
-  invmass->Print("invmass.pdf");
-  invmass->Print("invmass.C");
-  invmass->Print("invmass.root");
+  invmass_mom->Print("invmass_mom.pdf");
+  invmass_mom->Print("invmass_mom.C");
+  invmass_mom->Print("invmass_mom.root");
+  diff_can->Print("differences.pdf");
+  diff_can->Print("differences.C");
+  diff_can->Print("differences.root");
 
   f->Close();
 }
